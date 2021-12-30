@@ -20,6 +20,11 @@ altura = 480  # Medida da tela em pixel
 
 x_cobra = int(largura/2)  # Representa a posição horizontal (eixo x = largura da tela / 2 = inicia no meio da tela)
 y_cobra = int(altura/2)  # Representa a posição vertical (eixo y = altura da tela / 2 = inicia no meio da tela)
+
+velocidade = 10
+x_controle = velocidade
+y_controle = 0
+
 x_maca = randint(40, 600)  # Variável recebe valor aleatório entre 40 a 600 para o eixo x
 y_maca = randint(50, 430)  # Variável recebe valor aleatório entre 50 a 430 para o eixo y
 pontos = 0
@@ -34,7 +39,7 @@ relogio = pygame.time.Clock()  # Variável que controla o tempo
 pygame.display.set_caption('Jogo')
 
 lista_cobra = []  # Recebe lista da posição para comprimento da cobra
-
+comprimento_inicial = 5  # Recebe o valor do comprimento inicial da cobra
 
 # Função que aumenta a cobra
 def aumenta_cobra(lista_cobra):
@@ -53,14 +58,34 @@ while True:
             pygame.quit()
             exit()
 
-    if pygame.key.get_pressed()[K_a]:  # Se pressionar a tecla "a"
-        x_cobra = x_cobra - 20  # mova para esquerda
-    if pygame.key.get_pressed()[K_d]:  # Se pressionar a tecla "d"
-        x_cobra = x_cobra + 20  # mova para direita
-    if pygame.key.get_pressed()[K_w]:  # Se pressionar a tecla "w"
-        y_cobra = y_cobra - 20  # mova para cima
-    if pygame.key.get_pressed()[K_s]:  # Se pressionar a tecla "s"
-        y_cobra = y_cobra + 20  # mova para baixo
+        if event.type == KEYDOWN:  # Se o evento for do tipo pressionar tecla do teclado
+            if event.key == K_a:  # Se pressionar a tecla "a"
+                if x_controle == velocidade:
+                    pass
+                else:
+                    x_controle = - velocidade  # mova para esquerda
+                    y_controle = 0  # Zera variável
+            if event.key == K_d:  # Se pressionar a tecla "d"
+                if x_controle == - velocidade:
+                    pass
+                else:
+                    x_controle = velocidade  # mova para direita
+                    y_controle = 0  # Zera variável
+            if event.key == K_w:  # Se pressionar a tecla "w"
+                if y_controle == velocidade:
+                    pass
+                else:
+                    y_controle = - velocidade  # mova para cima
+                    x_controle = 0  # Zera variável
+            if event.key == K_s:  # Se pressionar a tecla "s"
+                if y_controle == - velocidade:
+                    pass
+                else:
+                    y_controle = velocidade  # mova para baixo
+                    x_controle = 0  # Zera variável
+
+    x_cobra = x_cobra + x_controle
+    y_cobra = y_cobra + y_controle
 
     # Representa Cobra ((local),(cor),(posição XY e PX))
     cobra = pygame.draw.rect(tela, (0, 255, 0), (x_cobra, y_cobra, 20, 20))
@@ -72,12 +97,17 @@ while True:
         y_maca = randint(50, 430)  # Variável que recebe valor aleatório entre 50 a 430 para o eixo y
         pontos += 1  # Recebe valor de pontos + 1 ao colidirem
         som_colisao.play()  # Toca o som quando há colisão entre os objetos
+        comprimento_inicial += 1
 
     # Cria lista da posição da cabeça da cobra e lista do tamanho da cobra
     lista_cabeca = []
     lista_cabeca.append(x_cobra)
     lista_cabeca.append(y_cobra)
+
     lista_cobra.append(lista_cabeca)
+
+    if len(lista_cobra) > comprimento_inicial:
+        del lista_cobra[0]
 
     aumenta_cobra(lista_cobra)
 
