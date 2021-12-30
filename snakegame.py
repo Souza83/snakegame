@@ -21,7 +21,7 @@ altura = 480  # Medida da tela em pixel
 x_cobra = int(largura/2)  # Representa a posição horizontal (eixo x = largura da tela / 2 = inicia no meio da tela)
 y_cobra = int(altura/2)  # Representa a posição vertical (eixo y = altura da tela / 2 = inicia no meio da tela)
 
-velocidade = 10
+velocidade = 10  # Variável de velocidade do jogo
 x_controle = velocidade
 y_controle = 0
 
@@ -40,12 +40,24 @@ pygame.display.set_caption('Jogo')
 
 lista_cobra = []  # Recebe lista da posição para comprimento da cobra
 comprimento_inicial = 5  # Recebe o valor do comprimento inicial da cobra
+morreu = False  # Variável que recebe falso quando inicia jogo
 
 # Função que aumenta a cobra
 def aumenta_cobra(lista_cobra):
     for XeY in lista_cobra:
         pygame.draw.rect(tela, (0, 255, 0), (XeY[0], XeY[1], 20, 20))
 
+def reiniciar_jogo():
+    global pontos, comprimento_inicial, x_cobra, y_cobra, lista_cobra, lista_cabeca, x_maca, y_maca, morreu
+    pontos = 0
+    comprimento_inicial = 5
+    x_cobra = int(largura / 2)  # Representa a posição horizontal (eixo x = largura da tela / 2 = inicia no meio da tela)
+    y_cobra = int(altura / 2)  # Representa a posição vertical (eixo y = altura da tela / 2 = inicia no meio da tela)
+    lista_cobra = []
+    lista_cabeca = []
+    x_maca = randint(40, 600)  # Variável recebe valor aleatório entre 40 a 600 para o eixo x
+    y_maca = randint(50, 430)  # Variável recebe valor aleatório entre 50 a 430 para o eixo y
+    morreu = False
 
 # loop principal do jogo
 while True:
@@ -59,26 +71,26 @@ while True:
             exit()
 
         if event.type == KEYDOWN:  # Se o evento for do tipo pressionar tecla do teclado
-            if event.key == K_a:  # Se pressionar a tecla "a"
-                if x_controle == velocidade:
+            if event.key == K_a or event.key == K_LEFT:  # Se pressionar a tecla "a"
+                if x_controle == velocidade:  # Evita movimento contrário
                     pass
                 else:
                     x_controle = - velocidade  # mova para esquerda
                     y_controle = 0  # Zera variável
-            if event.key == K_d:  # Se pressionar a tecla "d"
-                if x_controle == - velocidade:
+            if event.key == K_d or event.key == K_RIGHT:  # Se pressionar a tecla "d"
+                if x_controle == - velocidade:  # Evita movimento contrário
                     pass
                 else:
                     x_controle = velocidade  # mova para direita
                     y_controle = 0  # Zera variável
-            if event.key == K_w:  # Se pressionar a tecla "w"
-                if y_controle == velocidade:
+            if event.key == K_w or event.key == K_UP:  # Se pressionar a tecla "w"
+                if y_controle == velocidade:  # Evita movimento contrário
                     pass
                 else:
                     y_controle = - velocidade  # mova para cima
                     x_controle = 0  # Zera variável
-            if event.key == K_s:  # Se pressionar a tecla "s"
-                if y_controle == - velocidade:
+            if event.key == K_s or event.key == K_DOWN:  # Se pressionar a tecla "s"
+                if y_controle == - velocidade:  # Evita movimento contrário
                     pass
                 else:
                     y_controle = velocidade  # mova para baixo
@@ -106,6 +118,36 @@ while True:
 
     lista_cobra.append(lista_cabeca)
 
+    # Game Over = Se lista cobra tiver posição da lista cabeça (caso houver colisão)
+    if lista_cobra.count(lista_cabeca) > 1:
+        fonte2 = pygame.font.SysFont('arial', 20, True, True)
+        mensagem = "Game Over! Pressione a tecla R para reiniciar o jogo!"
+        texto_formatado = fonte2.render(mensagem, True, (0, 0, 0))
+        ret_texto = texto_formatado.get_rect()
+        morreu = True  # Troca valor da variável para verdadeiro
+        while morreu:
+            tela.fill((255, 255, 255))
+            for event in pygame.event.get():  # Detecta se algum evento ocorreu
+                if event.type == QUIT:  # Para a janela fechar ao clicar em fechar
+                    pygame.quit()
+                    exit()
+                if event.type == KEYDOWN:  # Reinicia o jogo
+                    if event.key == K_r:  # Reinicia com tecla "r"
+                        reiniciar_jogo()  # Chama função
+            ret_texto.center = (largura//2, altura//2)
+            tela.blit(texto_formatado, ret_texto)
+            pygame.display.update()
+
+    if x_cobra > largura:
+        x_cobra = 0
+    if x_cobra < 0:
+        x_cobra = largura
+    if y_cobra < 0:
+        y_cobra = altura
+    if y_cobra > altura:
+        y_cobra = 0
+
+    # Deleta a primeira lista para que a cobra pare de crescer infinitamente
     if len(lista_cobra) > comprimento_inicial:
         del lista_cobra[0]
 
